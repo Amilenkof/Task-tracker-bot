@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import pro.sky.telegrambot.exceptions.TaskNotAddedException;
 import pro.sky.telegrambot.model.Task;
 import pro.sky.telegrambot.service.TaskService;
 import pro.sky.telegrambot.configuration.DefaultCommands;
@@ -33,7 +34,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public void init() {
         telegramBot.setUpdatesListener(this);
     }
-
+/**Метод получает ответ из Телеграмм и вызывает либо стандартные команды ,либо добавляет напоминания */
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
@@ -47,7 +48,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
-
+/**Метод  получает задание добавить в указанный чат задачу (напоминание)    */
     private void executeTaskAddCommand(String incomingCommand, Long chatId) {
         boolean CommandIsOk = taskService.addTask(incomingCommand, chatId);
         logger.info("Получена задача");
@@ -57,6 +58,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             SendResponse response = telegramBot.execute(message);
         }
     }
+    /**Метод по расписанию (раз в минуту )запрашивает актуальные задачи в БД и возвращает их пользователю в виде LIST<Task>
+     *  после чего по каждому Task выводит напоминание клиенту */
     @Scheduled(cron = "0 0/1 * * * *")
     private void executeTaskAddCommand() {
         List<Task> actualTasks = taskService.schedulledAnswer();

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import pro.sky.telegrambot.exceptions.TaskNotAddedException;
 import pro.sky.telegrambot.listener.TelegramBotUpdatesListener;
 import pro.sky.telegrambot.model.Task;
 import pro.sky.telegrambot.repository.TaskRepository;
@@ -18,6 +19,9 @@ import java.util.regex.Pattern;
 @Service
 public class TaskService {
     private final TaskRepository repository;
+    /**
+     * Паттерн предстваляет собой выражение вида "01.01.2022 20:00 Сделать домашнюю работу"
+     */
     private final Pattern pattern = Pattern.compile("([0-9\\.\\:\\s]{16})(\\s)([\\W+]+)");
     private final Logger logger = LoggerFactory.getLogger(TaskService.class);
 
@@ -26,6 +30,10 @@ public class TaskService {
         this.repository = repository;
     }
 
+
+    /**
+     * Метод реализует логику добавления в БД TASK - Полученного в виде строки и разделенного на группы с помощью Matcher
+     */
     public boolean addTask(String command, Long chatId) {
         Matcher matcher = pattern.matcher(command);
         if (matcher.matches()) {
@@ -38,13 +46,18 @@ public class TaskService {
             return repository.findById(idAddedTask).isPresent();
         }
         logger.info("Не удалось добавить задачу");
+
         return false;
     }
+
+/**Метод получает список актуальных задач
+ * cron = "0 0/1 * * * *" - расписание выполнения раз в минуту
+ * */
     @Scheduled(cron = "0 0/1 * * * *")
-    public List<Task> schedulledAnswer(){
+    public List<Task> schedulledAnswer() {
         LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
         List<Task> actualTasks = repository.findByPerformDate(now);
-        logger.debug("Актуальные задачи : {}",actualTasks);
+        logger.debug("Актуальные задачи : {}", actualTasks);
         return actualTasks;
 
     }
