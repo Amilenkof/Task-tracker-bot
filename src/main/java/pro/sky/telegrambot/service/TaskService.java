@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import pro.sky.telegrambot.exceptions.TaskNotAddedException;
-import pro.sky.telegrambot.listener.TelegramBotUpdatesListener;
 import pro.sky.telegrambot.model.Task;
 import pro.sky.telegrambot.repository.TaskRepository;
 
@@ -13,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,20 +33,18 @@ public class TaskService {
     /**
      * Метод реализует логику добавления в БД TASK - Полученного в виде строки и разделенного на группы с помощью Matcher
      */
-    public boolean addTask(String command, Long chatId) {
+    public Optional<Task> addTask(String command, Long chatId) {
         Matcher matcher = pattern.matcher(command);
         if (matcher.matches()) {
             String group1 = matcher.group(1);
             String group3 = matcher.group(3);
             LocalDateTime dateTime = LocalDateTime.parse(group1, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-            Task task = new Task(chatId, group3, dateTime);
-            Task savedTask = repository.save(task);
-            Long idAddedTask = savedTask.getId();
-            return repository.findById(idAddedTask).isPresent();
+            Task task = new Task(1L,chatId, group3, dateTime);
+            return Optional.of(repository.save(task));
         }
         logger.info("Не удалось добавить задачу");
 
-        return false;
+        return Optional.empty();
     }
 
 /**Метод получает список актуальных задач

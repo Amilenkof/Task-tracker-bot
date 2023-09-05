@@ -5,19 +5,18 @@ import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
-import liquibase.pro.packaged.C;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import pro.sky.telegrambot.exceptions.TaskNotAddedException;
 import pro.sky.telegrambot.model.Task;
 import pro.sky.telegrambot.service.TaskService;
 import pro.sky.telegrambot.configuration.DefaultCommands;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
@@ -50,9 +49,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 /**Метод  получает задание добавить в указанный чат задачу (напоминание)    */
     private void executeTaskAddCommand(String incomingCommand, Long chatId) {
-        boolean CommandIsOk = taskService.addTask(incomingCommand, chatId);
+        Optional<Task> taskOptional = taskService.addTask(incomingCommand, chatId);
         logger.info("Получена задача");
-        if (CommandIsOk) {
+        if (taskOptional.isPresent()) {
             logger.info("Задача успешно добавлена");
             SendMessage message = new SendMessage(chatId, "Напоминание добавлено");
             SendResponse response = telegramBot.execute(message);

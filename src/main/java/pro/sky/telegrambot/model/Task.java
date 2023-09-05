@@ -21,6 +21,7 @@ public class Task {
     private Long chatId;
     @Getter
     private String taskText;
+    @Getter
     private LocalDateTime performDate;
 
     public Task(Long chatId, String taskText, LocalDateTime performDate) {
