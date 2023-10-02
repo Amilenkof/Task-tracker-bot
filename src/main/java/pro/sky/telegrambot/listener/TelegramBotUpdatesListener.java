@@ -60,7 +60,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /**Метод по расписанию (раз в минуту )запрашивает актуальные задачи в БД и возвращает их пользователю в виде LIST<Task>
      *  после чего по каждому Task выводит напоминание клиенту */
     @Scheduled(cron = "0 0/1 * * * *")
-    private void executeTaskAddCommand() {
+    public void executeTaskAddCommand() {
         List<Task> actualTasks = taskService.schedulledAnswer();
             if (!actualTasks.isEmpty()){
             actualTasks.forEach(task -> {
@@ -73,7 +73,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     /**Метод возвращает ответ на стандартную команду которая содержится в DefaultCommands*/
-    private void executeStringCommand(String incomingCommand, Long chatId ) {
+    public void executeStringCommand(String incomingCommand, Long chatId ) {
         String answer = defaultCommands.getAllCommands().get(incomingCommand);
         SendMessage message = new SendMessage(chatId, answer);
         SendResponse response = telegramBot.execute(message);
