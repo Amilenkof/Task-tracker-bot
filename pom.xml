@@ -15,6 +15,7 @@
     <description>Telegram Bot with Spring Boot</description>
     <properties>
         <java.version>11</java.version>
+
     </properties>
     <dependencies>
         <dependency>
