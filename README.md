@@ -1,5 +1,5 @@
 # TelegrammBot
-Study project , telegramm bot reminding about task at a specified time
+Telegramm bot reminding about task at a specified time
 Link for bot - https://t.me/wundervafflel_bot
 For running project need set DB PostrgreSQL and change settings from application.propeties
 bot can execute command "/start" - and return anwer  with greetings
